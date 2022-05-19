@@ -63,12 +63,12 @@ def mkmov(z):
 	for ky,val in zip(t,v):FACES[ky]=val
 ori=list([FACES[k] for k in m])
 # ~ x3=MX[2]
-testable=[("x1",MX[1]),("x2",MX[2]),("y1",MY[1])]
+# ~ testable=[("x1",MX[1]),("x2",MX[2]),("y1",MY[1])]
 # ~ testable=[("x1",MX[1]),("y1",MY[1])]
 # ~ testable=[("x1",MX[1]),("x2",MX[2]),("z1",MZ[1])]
-# ~ testable=[("x0",MX[0]),("x1",MX[1]),("x2",MX[2]),("x3",MX[3])]
-# ~ testable.extend([("y0",MY[0]),("y1",MY[1]),("y2",MY[2]),("y3",MY[3])])
-# ~ testable.extend([("z0",MZ[0]),("z1",MZ[1]),("z2",MZ[2]),("z3",MZ[3])])
+testable=[("x0",MX[0]),("x1",MX[1]),("x2",MX[2]),("x3",MX[3])]
+testable.extend([("y0",MY[0]),("y1",MY[1]),("y2",MY[2]),("y3",MY[3])])
+testable.extend([("z0",MZ[0]),("z1",MZ[1]),("z2",MZ[2]),("z3",MZ[3])])
 
 mv=MX[0]
 mkmov(mv)
@@ -76,7 +76,7 @@ curr=list([FACES[k] for k in m])
 print ([a==b for a,b in zip(ori,curr)].count(True))
 for exchange in [(a,b) for a,b in zip(ori,curr) if a!=b]:
 	print(exchange)
-exit()
+# ~ exit()
 pathcode=""
 USELESS=set()
 record=0
@@ -133,7 +133,7 @@ while True:
 			same_face+=[x*y for x,y in zip(a,b)].count(16)
 		if same_face >0:
 			print(pathcode)
-			input(same_face)
+			# ~ input(same_face)
 	if len(pathcode)>1000:
 		pathcode=""
 		for f in m:FACES[f]=f
