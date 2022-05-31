@@ -17,7 +17,7 @@ genotype=[s.replace('URA3 ','U') for s in genotype]
 genotype=[s.replace('MET15 ','M') for s in genotype]
 genotype=[s.replace('PROTOTROPH','P') for s in genotype]
 
-con=pymysql.connect(database="levure",password="xxxxxx")
+con=pymysql.connect(host="big",database="levure",password="xxxxxx")
 c=con.cursor()
 c.execute("select distinct name from gc")
 gene_names=np.array(c.fetchall())[:,0]
