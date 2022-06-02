@@ -2,46 +2,39 @@
 # -*- coding: utf-8 -*-
 import csv
 
-fn="/data/yeast/SraRunTable.txt"
-genotypefile=open(fn)
-csv=csv.reader(genotypefile)
-exg=[(row[0],row[18]) for row in csv][1:]
-exps=[a for a,b in exg]
-genotype=[b for a,b in exg]
-genotype=[s.replace('\\,','') for s in genotype]
-genotype=[s.replace('knockout','') for s in genotype]
-genotype=[s.replace('HIS3 ','H') for s in genotype]
-genotype=[s.replace('LEU2 ','L') for s in genotype]
-genotype=[s.replace('URA3 ','U') for s in genotype]
-genotype=[s.replace('MET15 ','M') for s in genotype]
-genotype=[s.replace('PROTOTROPH','P') for s in genotype]
-
-genotypes=list(set(genotype))
-genotypes.sort()
-print(genotypes)
-
 Labels={}
-for geno in genotypes:
-	Labels[geno]=[]
-for geno,exp in zip(genotype,exps):
-	Labels[geno].append(exp)
-	Labels[geno].sort()
-# ~ Manual correction
-Labels["UM"]=["ERR1095171","ERR1095172","ERR1095182"]
-Labels["M"]=["ERR1095184","ERR1095173","ERR1095187"]
-Labels["LU"]=["ERR1095181","ERR1095185","ERR1095183"]
-Labels["H"]=["ERR1095188","ERR1095189","ERR1095180"]
-Labels["HU"]=["ERR1095178","ERR1095179","ERR1095190"]
-Labels["HLM"]=["ERR1095153","ERR1095154","ERR1095168"]
-Labels["LM"]=["ERR1095186","ERR1095169","ERR1095170"]
-for geno in genotypes:
-	print(geno,Labels[geno])
 
 import pymysql
-import numpy as np
-import matplotlib.pyplot as plt
 con=pymysql.connect(host="big",database="levure",password="xxxxxx")
 c=con.cursor()
+c.execute("select distinct exp from gc")
+exps=[exp for exp, in c.fetchall()]
+genotype={}
+for exp in exps:genotype[exp]=""
+tags=list("UMLH")
+genecodes=("YEL021W","YLR303W","YCL018W","YOR202W")
+for t,g in zip(tags,genecodes):
+	c.execute("select exp from gc where name=%s order by nbr",g)
+	res=c.fetchall()
+	for exp, in res[:24]:
+		genotype[exp]+=t
+for exp in exps:
+	t=list(genotype[exp])
+	t.sort()
+	t="".join(t)
+	if t=="":t="P"
+	genotype[exp]=t
+	print(exp,genotype[exp])
+genotypes=list(set(genotype.values()))	
+genotypes.sort()
+for geno in genotypes:
+	Labels[geno]=list([k for k,v in genotype.items() if v==geno])
+for k,v in Labels.items():print(k,v)
+# ~ exit()
+import numpy as np
+import matplotlib.pyplot as plt
+# ~ con=pymysql.connect(host="big",database="levure",password="xxxxxx")
+# ~ c=con.cursor()
 
 C=[]
 ylabl=[]
@@ -59,15 +52,22 @@ for geno in genotypes:
 		C.append(np.array(c.fetchall())[:,0])
 z=np.c_[C]	
 # ~ z=z[:,100:150]
-
+print(len(z))
 sbe=z.sum(axis=1)
 scaled=z.T/sbe*1000000
-print(sbe.mean())
-print(sbe,max(sbe),min(sbe))
+# ~ print(sbe.mean())
+# ~ print(sbe,max(sbe),min(sbe))
 # ~ input
 scaled=scaled.T-scaled.mean(axis=1)
 scaled=scaled.T
 
+# ~ fo=open("D.csv","w")
+# ~ co=csv.writer(fo)
+# ~ co.writerows(D)
+
+fo=open("scaled.csv","w")
+co=csv.writer(fo)
+co.writerows(scaled)
 # ~ corr matrix heatmap
 cov=np.cov(scaled.T)
 
@@ -84,7 +84,15 @@ plt.show()
 # ~ pca
 cov=np.cov(scaled)
 val,vec=np.linalg.eigh(cov)
+print (val)
 nref=vec[:,(-1,-2)]
+fo=open("PCs.csv","w")
+co=csv.writer(fo)
+co.writerows(nref)
+# ~ fo=open("eigenvals.csv","w")
+# ~ co=csv.writer(fo)
+# ~ co.writerows(val)
+# ~ exit()
 NP=scaled.T@nref
 NP=NP.T
 plt.scatter(NP[0],NP[1])
