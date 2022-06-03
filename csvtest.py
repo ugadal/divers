@@ -3,7 +3,7 @@
 #
 from random import randint as ri
 import numpy as np
-n=10
+n=4
 g=np.random.randint(0,20,(n,n))
 
 for l in g:print(l)
@@ -11,36 +11,42 @@ print()
 import itertools as it
 reci=0
 recs=n*n*21
-# ~ for c in it.permutations (list(range(n))):
-	# ~ ttl=sum([g[l,c] for l,c in zip (range(n),c)])
-	# ~ if ttl >reci:
-		# ~ reci=ttl
-		# ~ si=(c,[g[l,c] for l,c in zip (range(n),c)])
-	# ~ if ttl <recs:
-		# ~ recs=ttl
-		# ~ ss=(c,[g[l,c] for l,c in zip (range(n),c)])
+for c in it.permutations (list(range(n))):
+	ttl=sum([g[l,c] for l,c in zip (range(n),c)])
+	if ttl >reci:
+		reci=ttl
+		si=(c,[g[l,c] for l,c in zip (range(n),c)])
+	if ttl <recs:
+		recs=ttl
+		ss=(c,[g[l,c] for l,c in zip (range(n),c)])
 
 def mark():
 	x=g.copy()
 	zeroes=np.count_nonzero(x==0,axis=1)
 	print(zeroes)
-	while zeroes.any():
-		m=zeroes[np.where(zeroes>=1)].min()
-		print(m,zeroes)
-		rownb=np.where(zeroes==m)[0][0]
-		print("fiddling with row :",rownb)
-		column=np.where(x[rownb]==0)[0][0]
-		print ("fiddling at column :",column)
-		x[rownb,column]=1000
-		x[rownb][np.where(x[rownb]==0)]=-1000
-		x[:,column][np.where(x[:,column]==0)]=-1000
-		print(x)
-		zeroes=np.count_nonzero(x==0,axis=1)
-		print(zeroes)
-		# ~ input()
-	squared=np.count_nonzero(x==1000)
-	print("squared :",squared)
-	if squared != n:
+	notfound=True
+	while notfound:
+		notfound=False
+		while zeroes.any():
+			m=zeroes[np.where(zeroes>=1)].min()
+			print(m,zeroes)
+			rownb=np.where(zeroes==m)[0][0]
+			print("fiddling with row :",rownb)
+			column=np.where(x[rownb]==0)[0][0]
+			print ("fiddling at column :",column)
+			x[rownb,column]=1000
+			x[rownb][np.where(x[rownb]==0)]=-1000
+			x[:,column][np.where(x[:,column]==0)]=-1000
+			print(x)
+			zeroes=np.count_nonzero(x==0,axis=1)
+			print(zeroes)
+			# ~ input()
+		squared=np.count_nonzero(x==1000)
+		print("squared :",squared)
+		if squared == n:
+			print(x)
+			print(reci,si)
+			exit()
 		tl=np.count_nonzero(x==1000,axis=1)
 		tl=np.where(tl==0)[0]
 		print("TL :",tl)
@@ -80,10 +86,21 @@ def mark():
 		remain=x[tl,][:,[c for c in range(n) if c not in tc]]
 		print(remain)
 		print(remain.min())
+		m=remain.min()
+		x[np.where(x==1000)]=0
+		x[np.where(x==-1000)]=0
+		for l in tl:
+			for c in range(n):
+				if c not in tc:x[l,c]-=m
+				else:x[l,c]+=m
+		print(x[tl,][:,[c for c in range(n) if c not in tc]])
+		print(x)
+		zeroes=np.count_nonzero(x==0,axis=1)
+		notfound=True
+
 	# ~ x[(0,1,2),][:,(3,4)]
 
-# ~ print(reci,si)
-# ~ print(recs,ss)
+
 g=g.max()-g
 a=g.min(axis=0)
 g=g-a
@@ -96,3 +113,5 @@ print(g)
 zeroes=np.count_nonzero(g==0,axis=1)
 print (zeroes)
 mark()
+# ~ print(reci,si)
+print(recs,ss)
