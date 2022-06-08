@@ -3,11 +3,12 @@
 #
 from random import randint as ri
 import numpy as np
-n=500
+from scipy.optimize import linear_sum_assignment
+n=10
 def mkgrid():
-	g=np.random.randint(0,20,(n,n))
-	print(g)
-	g=g.max()-g
+	G=np.random.randint(0,20,(n,n))
+	print(G)
+	g=G.max()-G
 	print(g)
 	a=g.min(axis=1)
 	g=g.T-a
@@ -15,7 +16,7 @@ def mkgrid():
 	a=g.min(axis=0)
 	g=g-a
 	print(g)
-	return g
+	return G,g
 # ~ import itertools as it
 # ~ reci=0
 # ~ recs=n*n*21
@@ -56,7 +57,14 @@ def mark():
 		if squared==n:
 			print(x)
 			print("solved",cycle)
-			input()
+			sq=np.where(x==1000)
+			print(G[sq])
+			a=sum(G[sq])
+			ri,ci=linear_sum_assignment(g)
+			print(G[ri,ci])
+			b=sum(G[ri,ci])
+			if a!=b:
+				input()
 			return
 		
 		# ~ print("squared :",squared)
@@ -118,7 +126,7 @@ def mark():
 
 while True:
 	print("="*50)
-	g=mkgrid()
+	G,g=mkgrid()
 	mark()
 # ~ g=g.max()-g
 # ~ a=g.min(axis=0)
